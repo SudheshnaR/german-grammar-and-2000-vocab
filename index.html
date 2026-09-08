@@ -105,6 +105,53 @@ input.ans:focus{outline:2px solid var(--amber);outline-offset:1px}
 .result .big{font-family:var(--serif);font-size:46px;font-weight:600;margin:0}
 .result p{font-family:var(--serif);font-size:17px;color:var(--soft);margin:8px 0 0}
 
+#write{flex:1 1 auto;display:none;flex-direction:column;min-height:0}
+body.s #write{display:flex}
+body.s header,body.s main,body.s footer{display:none}
+#wlist{flex:1;overflow-y:auto;padding:14px 18px calc(20px + env(safe-area-inset-bottom))}
+#wex{flex:1;display:flex;flex-direction:column;min-height:0}
+#wex[hidden],#wlist[hidden]{display:none!important}
+.wtopic{width:100%;text-align:left;border:1px solid var(--line);background:var(--card);
+  border-radius:4px 14px 14px 4px;padding:13px 14px;margin-bottom:7px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.wtopic h3{font-family:var(--serif);font-size:17px;font-weight:600;margin:0;flex:1}
+.wtopic h3 em{display:block;font-style:normal;font-family:var(--sans);font-size:12px;color:var(--soft);font-weight:400;margin-top:3px;line-height:1.35}
+.seg{display:flex;gap:0;border-bottom:1px solid var(--line);padding:0 18px}
+.seg button{flex:1;border:0;background:none;padding:11px 4px 9px;font-family:var(--sans);font-size:13.5px;
+  color:var(--soft);cursor:pointer;border-bottom:2px solid transparent}
+.seg button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--amber);font-weight:600}
+.wbody{flex:1;overflow-y:auto;padding:14px 18px calc(16px + env(safe-area-inset-bottom))}
+.taskbox{background:var(--amber-tint);border-radius:4px 14px 14px 4px;padding:13px 15px;margin-bottom:14px}
+.taskbox p{margin:0;font-family:var(--serif);font-size:15.5px;line-height:1.55;white-space:pre-wrap}
+.taskbox .ten{font-family:var(--sans);font-size:12.5px;color:var(--soft);margin-top:9px;line-height:1.45}
+.chk{display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line)}
+.chk .mk{flex:0 0 20px;font-family:var(--sans);font-size:14px;line-height:1.4;color:var(--line)}
+.chk.yes .mk{color:var(--moss)} .chk.no .mk{color:var(--amber)}
+.chk .cn{font-family:var(--serif);font-size:15px;line-height:1.4}
+.chk .ce{display:block;font-family:var(--sans);font-size:11.5px;color:var(--soft);margin-top:2px}
+.mail{background:var(--card);border:1px solid var(--line);border-radius:4px 14px 14px 4px;padding:15px 16px;
+  font-family:var(--serif);font-size:16px;line-height:1.65;white-space:pre-wrap}
+.ph{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--card);border-radius:10px;
+  overflow:hidden;box-shadow:0 0 0 1px var(--line)}
+.ph td{padding:8px 10px;border-top:1px solid var(--line);font-family:var(--serif);vertical-align:top}
+.ph tr:first-child td{border-top:0}
+.ph td.e{color:var(--soft);font-size:13px;width:44%}
+.fld{display:block;margin-bottom:10px}
+.fl{display:block;font-family:var(--sans);font-size:12px;color:var(--soft);margin-bottom:4px;font-weight:600}
+.fl em{font-style:normal;font-weight:400;opacity:.8}
+.fi{width:100%;font-family:var(--serif);font-size:16px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--card);color:var(--ink);-webkit-appearance:none}
+.fi:focus{outline:2px solid var(--amber);outline-offset:1px}
+.fi.bad{border-color:var(--amber);border-width:2px;padding:9px 11px}
+#wdraft{width:100%;min-height:230px;font-family:var(--serif);font-size:16px;line-height:1.6;padding:13px;
+  border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);
+  -webkit-appearance:none;resize:vertical}
+#wdraft:focus{outline:2px solid var(--amber);outline-offset:1px}
+.wcount{font-family:var(--sans);font-size:12px;color:var(--soft);margin:8px 0 0;text-align:right}
+.wcount.good{color:var(--moss)}
+.tipbox{font-family:var(--sans);font-size:13px;color:var(--soft);line-height:1.55;margin-top:16px;
+  padding-top:13px;border-top:1px solid var(--line)}
+.wfoot{flex:0 0 auto;padding:12px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);display:flex;gap:8px}
+
 /* ---------- header ---------- */
 header{padding:14px 18px 10px;flex:0 0 auto}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
@@ -219,7 +266,22 @@ button:focus-visible,.set:focus-visible{outline:2px solid var(--amber);outline-o
 <div class="tabs">
   <button class="tab" id="tabW" aria-selected="true">Wörter</button>
   <button class="tab" id="tabG" aria-selected="false">Grammatik</button>
+  <button class="tab" id="tabS" aria-selected="false">Schreiben</button>
 </div>
+
+<section id="write">
+  <div id="wlist"></div>
+  <div id="wex" hidden>
+    <div class="gtop"><button class="back" id="wback" aria-label="Back">‹</button><h2 id="wtitle"></h2></div>
+    <div class="seg">
+      <button id="segA" aria-selected="true">Aufgabe</button>
+      <button id="segM" aria-selected="false">Muster</button>
+      <button id="segP" aria-selected="false">Üben</button>
+    </div>
+    <div class="wbody" id="wbody"></div>
+    <div class="wfoot" id="wfoot"></div>
+  </div>
+</section>
 
 <section id="gram">
   <div class="glist" id="glist"></div>
@@ -2843,7 +2905,7 @@ $("mAgain").onclick = ()=>{
 document.addEventListener("keydown", e=>{
   const t=e.target, tag=t&&t.tagName;
   if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||(t&&t.isContentEditable)) return;
-  if(document.body.classList.contains("g")) return;
+  if(document.body.classList.contains("g")||document.body.classList.contains("s")) return;
   if(e.key==="ArrowRight") move(1);
   else if(e.key==="ArrowLeft") move(-1);
   else if(e.key===" "){ e.preventDefault(); $("play").click(); }
@@ -2937,6 +2999,8 @@ $("wsheet").onclick=e=>{ if(e.target===$("wsheet")) $("wsheet").classList.remove
 $("wq").addEventListener("input",runSearch);
 $("wq").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("wq").blur(); }});
 
+const WTOPICS = [{"id":"w_form","level":"A1","title":"Formular ausfüllen","en":"Filling in a personal-details form","words":[0,0],"task":"Füllen Sie das Anmeldeformular mit Ihren persönlichen Daten aus.","taskEn":"Fill in the registration form with your personal details.","points":[{"t":"Name und Adresse","en":"name and address","k":["strasse","str.","weg","platz"]},{"t":"Geburtsdatum","en":"date of birth","k":["19","20","januar","februar","märz","april","mai","juni","juli","august","september","oktober","november","dezember","."]},{"t":"Kontakt","en":"phone or email","k":["@","07","+41","telefon"]}],"phrases":[["der Vorname","first name"],["der Nachname / Familienname","surname"],["die Strasse / Nr.","street / number"],["die PLZ / der Ort","postcode / town"],["das Geburtsdatum","date of birth"],["der Geburtsort","place of birth"],["die Nationalität","nationality"],["der Familienstand","marital status"],["ledig / verheiratet","single / married"],["der Beruf","occupation"],["die Telefonnummer","phone number"],["die Unterschrift","signature"]],"model":"Vorname: Anna\nNachname: Keller\nStrasse / Nr.: Seestrasse 14\nPLZ / Ort: 8134 Adliswil\nLand: Schweiz\nGeburtsdatum: 12.03.1990\nGeburtsort: Chennai\nNationalität: indisch\nFamilienstand: verheiratet\nBeruf: Data Engineer\nTelefon: 076 123 45 67\nE-Mail: anna.keller@mail.ch\nDatum: 8. September 2026\nUnterschrift: A. Keller","tip":"This one is only about knowing the field names. Learn the twelve words above and it takes two minutes in the exam.","fields":[{"k":"vorname","de":"Vorname","en":"first name","ph":"Anna"},{"k":"nachname","de":"Nachname","en":"surname","ph":"Keller"},{"k":"strasse","de":"Strasse / Nr.","en":"street and number","ph":"Seestrasse 14"},{"k":"plz","de":"PLZ","en":"postcode","ph":"8134","re":"^\\d{4}$","hint":"Die Schweizer PLZ hat genau vier Ziffern."},{"k":"ort","de":"Ort","en":"town","ph":"Adliswil"},{"k":"land","de":"Land","en":"country","ph":"Schweiz"},{"k":"geb","de":"Geburtsdatum","en":"date of birth","ph":"12.03.1990","re":"^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$","hint":"Format: TT.MM.JJJJ, zum Beispiel 12.03.1990"},{"k":"gebort","de":"Geburtsort","en":"place of birth","ph":"Chennai"},{"k":"nat","de":"Nationalität","en":"nationality","ph":"indisch"},{"k":"stand","de":"Familienstand","en":"marital status","ph":"verheiratet"},{"k":"beruf","de":"Beruf","en":"occupation","ph":"Data Engineer"},{"k":"tel","de":"Telefonnummer","en":"phone number","ph":"076 123 45 67","re":"[0-9][0-9 +]{7,}","hint":"Mindestens acht Ziffern."},{"k":"mail","de":"E-Mail","en":"email","ph":"anna.keller@mail.ch","re":"^[^@ ]+@[^@ ]+\\.[a-z]{2,}$","hint":"Eine E-Mail braucht ein @ und einen Punkt."},{"k":"datum","de":"Datum","en":"today's date","ph":"8.9.2026","re":"^\\d{1,2}\\.\\d{1,2}\\.\\d{4}$","hint":"Format: TT.MM.JJJJ"},{"k":"unter","de":"Unterschrift","en":"signature","ph":"A. Keller"}]},{"id":"w_drei","level":"A1","title":"Drei kurze Fragen","en":"Answering three short questions in one sentence each","words":[12,30],"task":"Beantworten Sie die drei Fragen. Schreiben Sie zu jeder Frage einen Satz.\n1. Was kaufen Sie heute im Supermarkt?\n2. Wann schliesst das Geschäft?\n3. Wie kommen Sie zur Arbeit?","taskEn":"Answer the three questions, one sentence each: what are you buying today, when does the shop close, how do you get to work?","points":[{"t":"Frage 1 beantworten","en":"answer question 1","k":["kaufe","brot","milch","obst","gemüse","gemuese"]},{"t":"Frage 2 beantworten","en":"answer question 2","k":["schliesst","uhr","geschäft","geschaeft"]},{"t":"Frage 3 beantworten","en":"answer question 3","k":["fahre","gehe","zug","bus","auto","fuss","velo"]}],"phrases":[["Ich kaufe …","I'm buying …"],["Das Geschäft schliesst um … Uhr.","The shop closes at …"],["Ich fahre mit dem Zug.","I go by train."],["Ich gehe zu Fuss.","I walk."],["um 19 Uhr","at 7 p.m."],["heute Abend","this evening"]],"model":"1. Ich kaufe heute Milch, Brot und Obst.\n2. Das Geschäft schliesst um 19 Uhr.\n3. Ich fahre mit dem Zug zur Arbeit.","tip":"One full sentence per question is enough. Reuse the words from the question itself — that way you cannot get them wrong."},{"id":"w_kino","level":"A1","title":"Nachricht an die Nachbarin","en":"A short reply to a neighbour's message","words":[25,50],"task":"Ihre Nachbarin schreibt Ihnen: Wo ist das Kino? Um wie viel Uhr läuft der Film? Was kann man im Kino essen? Antworten Sie ihr.","taskEn":"Your neighbour asks: where is the cinema, what time is the film, what can you eat there? Write back.","points":[{"t":"Anrede","en":"greeting","k":["liebe","hallo","guten tag"]},{"t":"Wo ist das Kino?","en":"where the cinema is","k":["kino ist","bahnhof","neben","zentrum","strasse"]},{"t":"Um wie viel Uhr?","en":"what time","k":["uhr","läuft","laeuft","beginnt","fängt","faengt"]},{"t":"Was kann man essen?","en":"what to eat","k":["essen","popcorn","sandwich","kuchen","glace"]},{"t":"Gruss","en":"sign-off","k":["grüsse","gruesse","bis bald","liebe grüsse"]}],"phrases":[["Liebe Frau Meier,","Dear Mrs Meier,"],["danke für deine Nachricht","thanks for your message"],["Das Kino ist neben …","The cinema is next to …"],["Der Film läuft um … Uhr.","The film is on at …"],["Man kann dort … essen.","You can eat … there."],["Bis bald!","See you soon!"],["Viele Grüsse","Best wishes"]],"model":"Liebe Frau Meier,\n\nvielen Dank für Ihre Nachricht. Das Kino ist am Bahnhof, direkt neben der Post. Der Film läuft heute Abend um 20 Uhr. Im Kino kann man Popcorn und Sandwiches essen.\n\nBis bald!\n\nViele Grüsse\nAnna","tip":"Three questions, three sentences. Answer them in the order they were asked and you cannot forget one."},{"id":"w_arzt","level":"A2","title":"Termin beim Arzt absagen","en":"Cancelling a doctor's appointment","words":[35,60],"task":"Sie haben am Dienstag um 10 Uhr einen Termin bei Ihrer Ärztin. Sie können nicht kommen. Schreiben Sie eine E-Mail:\n– entschuldigen Sie sich\n– erklären Sie, warum Sie nicht kommen können\n– bitten Sie um einen neuen Termin","taskEn":"Cancel your doctor's appointment: apologise, explain why, ask for a new one. About 40 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte","sehr geehrter"]},{"t":"Termin absagen","en":"say you cannot come","k":["kann ich nicht","leider nicht","nicht kommen","absagen","nicht wahrnehmen","leider kann","leider","verhindert","nicht dabei","nicht schaffen"]},{"t":"Grund nennen","en":"give a reason","k":["weil","denn","mein","krank","arbeiten","muss"]},{"t":"Neuen Termin erbitten","en":"ask for a new appointment","k":["neuen termin","anderen termin","verschieben","könnten sie","koennten sie"]},{"t":"Höflicher Schluss","en":"polite closing","k":["vielen dank","danke","verständnis","verstaendnis"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen","freundlichen grüßen"]}],"phrases":[["Sehr geehrte Frau Doktor Berger,","Dear Dr Berger,"],["leider kann ich meinen Termin am … nicht wahrnehmen.","unfortunately I can't keep my appointment on …"],["Mein Sohn ist krank.","My son is ill."],["Könnten Sie mir bitte einen neuen Termin geben?","Could you give me a new appointment?"],["Vielen Dank für Ihr Verständnis.","Thank you for your understanding."],["Mit freundlichen Grüssen","Kind regards"]],"model":"Sehr geehrte Frau Doktor Berger,\n\nleider kann ich meinen Termin am Dienstag um 10 Uhr nicht wahrnehmen. Mein Sohn ist krank und ich muss zu Hause bleiben.\n\nKönnten Sie mir bitte einen neuen Termin in der nächsten Woche geben? Ein Vormittag wäre für mich am besten.\n\nVielen Dank für Ihr Verständnis.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"This is THE A2 template: greeting, cancel, reason, new date, thank you, sign-off. The doctor, the teacher and the boss versions are the same email with three words swapped."},{"id":"w_lehrer","level":"A2","title":"Elternabend absagen","en":"Telling the teacher you can't come to the parents' evening","words":[35,60],"task":"Am Mittwoch ist Elternabend in der Schule Ihres Kindes. Sie können nicht kommen. Schreiben Sie der Lehrerin:\n– entschuldigen Sie sich\n– erklären Sie den Grund\n– bitten Sie um die wichtigsten Informationen","taskEn":"Email your child's teacher: you can't attend the parents' evening, explain why, ask for the key information. About 40 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte","sehr geehrter"]},{"t":"Absage","en":"say you cannot come","k":["kann ich nicht","leider nicht","nicht kommen","nicht teilnehmen","leider kann","leider","nicht wahrnehmen","absagen","verhindert","nicht dabei","nicht schaffen"]},{"t":"Grund nennen","en":"give a reason","k":["weil","denn","arbeiten","muss","krank","termin"]},{"t":"Informationen erbitten","en":"ask for the information","k":["informationen","bescheid","schicken","mitteilen","zusammenfassung"]},{"t":"Höflicher Schluss","en":"polite closing","k":["vielen dank","danke","im voraus","verständnis","verstaendnis"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Sehr geehrte Frau Berger,","Dear Mrs Berger,"],["leider kann ich am … nicht zum Elternabend kommen.","unfortunately I can't come to the parents' evening on …"],["Ich muss an diesem Abend arbeiten.","I have to work that evening."],["Könnten Sie mir bitte die wichtigsten Informationen schicken?","Could you send me the key information?"],["Gerne komme ich zu einem anderen Termin.","I'd gladly come another time."],["Vielen Dank im Voraus.","Many thanks in advance."]],"model":"Sehr geehrte Frau Berger,\n\nleider kann ich am Mittwoch nicht zum Elternabend kommen. Ich muss an diesem Abend arbeiten und finde leider keine Betreuung für meine Kinder.\n\nKönnten Sie mir bitte die wichtigsten Informationen per E-Mail schicken? Gerne komme ich auch zu einem anderen Termin.\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Note the small extra step: instead of a new appointment you ask for the information. Everything else is identical to the doctor email."},{"id":"w_chef","level":"A2","title":"Weihnachtsfeier absagen","en":"Declining your boss's invitation","words":[35,60],"task":"Ihr Chef lädt Sie zur Weihnachtsfeier am Freitag ein. Sie können nicht kommen. Schreiben Sie eine E-Mail:\n– bedanken Sie sich für die Einladung\n– sagen Sie ab und erklären Sie warum\n– wünschen Sie allen einen schönen Abend","taskEn":"Decline your boss's invitation to the Christmas party: thank them, say why you can't come, wish them a good evening. About 40 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrter","sehr geehrte","lieber herr","liebe frau"]},{"t":"Für die Einladung danken","en":"thank them for the invitation","k":["danke für die einladung","vielen dank für die einladung","einladung"]},{"t":"Absage","en":"decline","k":["kann ich nicht","leider nicht","nicht kommen","nicht teilnehmen","leider kann","leider","nicht wahrnehmen","absagen","verhindert","nicht dabei","nicht schaffen"]},{"t":"Grund nennen","en":"give a reason","k":["weil","denn","familie","besuch","krank","termin"]},{"t":"Guten Abend wünschen","en":"wish them a nice evening","k":["wünsche","wuensche","schönen abend","schoenen abend","viel spass"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Vielen Dank für die Einladung zur Weihnachtsfeier.","Thank you for the invitation to the Christmas party."],["Leider kann ich nicht kommen.","Unfortunately I can't come."],["Meine Familie ist zu Besuch.","My family is visiting."],["Das tut mir sehr leid.","I'm very sorry about that."],["Ich wünsche Ihnen und dem Team einen schönen Abend.","I wish you and the team a lovely evening."]],"model":"Sehr geehrter Herr Meier,\n\nvielen Dank für die Einladung zur Weihnachtsfeier am Freitag.\n\nLeider kann ich nicht kommen, weil meine Familie an diesem Wochenende zu Besuch ist. Das tut mir sehr leid.\n\nIch wünsche Ihnen und dem ganzen Team einen schönen Abend.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"When you're turning down an invitation, thank them first. That single sentence is what makes it sound polite rather than blunt."},{"id":"w_berater","level":"A2","title":"Termin verschieben","en":"Rescheduling an appointment with your adviser","words":[35,65],"task":"Sie haben einen Termin mit Ihrem Berater. Sie können nicht kommen, weil Ihre Tochter einen Unfall hatte. Schreiben Sie:\n– entschuldigen\n– erklären, warum Sie nicht kommen können\n– den Termin verschieben\n– korrekte Anrede und höfliche Formulierungen","taskEn":"You can't attend your appointment because your daughter had an accident. Apologise, explain, propose a new time. Formal tone. About 40 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrter","sehr geehrte"]},{"t":"Absage","en":"say you cannot come","k":["kann ich nicht","leider nicht","nicht kommen","leider kann","leider","nicht wahrnehmen","absagen","verhindert","nicht dabei","nicht schaffen"]},{"t":"Grund: Unfall","en":"the reason","k":["unfall","tochter","krankenhaus","spital","gestürzt","gestuerzt"]},{"t":"Termin verschieben","en":"propose a new time","k":["verschieben","neuen termin","anderen termin","würde mir passen","wuerde mir passen"]},{"t":"Höflicher Schluss","en":"polite closing","k":["vielen dank","danke","verständnis","verstaendnis"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Sehr geehrter Herr Keller,","Dear Mr Keller,"],["Meine Tochter hatte einen Unfall.","My daughter had an accident."],["Sie ist im Krankenhaus.","She is in hospital."],["Können wir den Termin bitte verschieben?","Could we please move the appointment?"],["Freitagmorgen würde mir gut passen.","Friday morning would suit me well."],["Vielen Dank für Ihr Verständnis.","Thank you for your understanding."]],"model":"Sehr geehrter Herr Keller,\n\nleider kann ich am Donnerstag nicht zu unserem Termin kommen. Meine Tochter hatte gestern einen Unfall und ist noch im Krankenhaus.\n\nKönnten wir den Termin bitte auf die nächste Woche verschieben? Freitagmorgen würde mir sehr gut passen.\n\nVielen Dank für Ihr Verständnis.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"The task explicitly asks for a correct salutation and polite forms — so use Sie throughout, and offer a concrete alternative day rather than just 'another time'."},{"id":"w_sms","level":"A2","title":"SMS an den Kollegen","en":"An informal message to a colleague","words":[30,55],"task":"Sie gehen für eine Woche in die Ferien. Schreiben Sie Ihrem Kollegen John eine SMS:\n– wohin Sie fahren\n– ab wann Sie weg sind\n– wann Sie zurück sind\n– Ihre Nummer für dringende Fälle","taskEn":"Text your colleague: where you're going, from when, when you're back, and your number for emergencies.","points":[{"t":"Lockere Anrede","en":"informal greeting","k":["hallo","hi","lieber","hey"]},{"t":"Wohin?","en":"where you're going","k":["nach","fahre","ferien","urlaub"]},{"t":"Ab wann?","en":"from when","k":["ab ","montag","dienstag","mittwoch","donnerstag","freitag","weg"]},{"t":"Wann zurück?","en":"when you're back","k":["zurück","zurueck","wieder da","komme am"]},{"t":"Notfallnummer","en":"emergency number","k":["07","+41","nummer","erreichen"]},{"t":"Lockerer Gruss","en":"informal sign-off","k":["grüsse","gruesse","bis bald","liebe grüsse","gruss"]}],"phrases":[["Hallo John,","Hi John,"],["ich bin nächste Woche in den Ferien","I'm on holiday next week"],["Ich bin ab Montag weg.","I'm away from Monday."],["Ich komme am Freitag zurück.","I'm back on Friday."],["In dringenden Fällen kannst du mich unter … erreichen.","In urgent cases you can reach me on …"],["Liebe Grüsse","Best wishes"]],"model":"Hallo John,\n\nich bin nächste Woche in den Ferien und fahre nach Italien. Ich bin ab Montag weg und komme am Freitag, den 20. März, zurück.\n\nIn dringenden Fällen kannst du mich unter 076 546 37 62 erreichen.\n\nLiebe Grüsse\nAnna","tip":"This is the one A2 task that is informal: du, not Sie. Watch for that — using Sie with a colleague you text is the mistake they're looking for."},{"id":"w_hotelA2","level":"A2","title":"Hotelzimmer buchen","en":"Booking a hotel room with three questions","words":[35,60],"task":"Sie möchten ein Hotelzimmer in den Bergen buchen. Schreiben Sie eine E-Mail und fragen Sie nach:\n– dem Preis\n– dem Check-in\n– einem Fitnessraum","taskEn":"Book a hotel room in the mountains and ask about the price, check-in, and whether they have a gym. About 40 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte","sehr geehrter"]},{"t":"Zimmer und Datum nennen","en":"say which room and when","k":["zimmer","doppelzimmer","einzelzimmer","vom","bis","august","juli"]},{"t":"Nach dem Preis fragen","en":"ask the price","k":["kostet","preis","kosten"]},{"t":"Nach dem Check-in fragen","en":"ask about check-in","k":["check-in","einchecken","ankommen","ab wann"]},{"t":"Nach dem Fitnessraum fragen","en":"ask about the gym","k":["fitness","sport","schwimmbad","gym"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Sehr geehrte Damen und Herren,","Dear Sir or Madam,"],["ich möchte ein Doppelzimmer buchen","I'd like to book a double room"],["vom 5. bis 8. August","from 5 to 8 August"],["Was kostet das Zimmer pro Nacht?","What does the room cost per night?"],["Ab wann kann man einchecken?","From what time can one check in?"],["Haben Sie auch einen Fitnessraum?","Do you also have a gym?"]],"model":"Sehr geehrte Damen und Herren,\n\nich möchte vom 5. bis 8. August ein Doppelzimmer für zwei Personen buchen.\n\nWas kostet das Zimmer pro Nacht? Ab wann kann man am Anreisetag einchecken? Und haben Sie auch einen Fitnessraum im Hotel?\n\nVielen Dank für Ihre Antwort.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Three questions, three short question sentences. At A2 nobody expects linking words — clear and correct beats clever."},{"id":"w_schule","level":"B1","title":"E-Mail an eine Sprachschule","en":"Asking a language school about a course","words":[75,110],"task":"Sie möchten einen Deutschkurs besuchen. Schreiben Sie an die Sprachschule:\n– warum Sie den Kurs machen möchten\n– wie lange der Kurs dauert und wie oft er stattfindet\n– was er kostet\n– ob es ein Zertifikat gibt","taskEn":"Write to a language school: why you want the course, how long and how often, the cost, and whether you get a certificate. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte","sehr geehrter"]},{"t":"Einleitung: Grund","en":"introduce why you're writing","k":["interessiere mich","möchte","moechte","habe gelesen","anzeige","internetseite"]},{"t":"Frage: Dauer","en":"ask about duration","k":["wie lange","dauert","wie oft","stattfindet","wochen","monate"]},{"t":"Frage: Preis","en":"ask about price","k":["kostet","preis","kosten","gebühr","gebuehr"]},{"t":"Frage: Zertifikat","en":"ask about a certificate","k":["zertifikat","bescheinigung","prüfung","pruefung","diplom"]},{"t":"Schlusssatz","en":"closing line","k":["baldige antwort","freuen","vielen dank","im voraus"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Ich habe Ihre Anzeige im Internet gelesen.","I read your advert online."],["Ich interessiere mich für einen Deutschkurs.","I'm interested in a German course."],["Ich möchte mein Deutsch verbessern, weil …","I want to improve my German because …"],["Dazu habe ich einige Fragen.","I have a few questions about it."],["Wie lange dauert der Kurs und wie oft findet er statt?","How long is the course and how often is it?"],["Bekommt man am Ende ein Zertifikat?","Do you get a certificate at the end?"],["Gibt es auch Abendkurse?","Are there evening courses too?"],["Über eine baldige Antwort würde ich mich sehr freuen.","I look forward to hearing from you soon."]],"model":"Sehr geehrte Damen und Herren,\n\nich habe Ihre Anzeige im Internet gelesen und interessiere mich für einen Deutschkurs auf dem Niveau B1. Ich wohne seit vier Jahren in der Schweiz und möchte mein Deutsch verbessern, weil ich wieder in meinem Beruf arbeiten möchte.\n\nDazu habe ich einige Fragen. Wie lange dauert der Kurs und wie oft findet er statt? Was kostet er insgesamt? Bekommt man am Ende ein Zertifikat? Und bieten Sie auch Abendkurse an, weil ich tagsüber arbeite?\n\nÜber eine baldige Antwort würde ich mich sehr freuen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"The B1 shape is: greeting, why you're writing, a paragraph of questions, closing line, sign-off. Every B1 email in this exam fits that shape. Learn it once."},{"id":"w_kita","level":"B1","title":"E-Mail an eine Kita","en":"Asking a nursery about a place","words":[75,110],"task":"Sie suchen einen Kita-Platz für Ihr Kind. Schreiben Sie an die Kita und fragen Sie:\n– ob es freie Plätze gibt\n– was ein Platz kostet\n– wie die Öffnungszeiten sind\n– ob Sie die Kita besichtigen können","taskEn":"Write to a nursery: are places free, what does it cost, opening times, can you visit. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte","sehr geehrter"]},{"t":"Einleitung: Ihre Situation","en":"introduce your situation","k":["suchen","suche","gezogen","kind","tochter","sohn","jahre alt"]},{"t":"Frage: freie Plätze","en":"ask about free places","k":["freie plätze","freie plaetze","platz frei","noch plätze","noch plaetze"]},{"t":"Frage: Preis","en":"ask about cost","k":["kostet","preis","kosten","pro monat"]},{"t":"Frage: Öffnungszeiten","en":"ask about opening times","k":["öffnungszeiten","oeffnungszeiten","wie lange offen","ab wann","ferien"]},{"t":"Frage: Besichtigung","en":"ask about a visit","k":["besichtigen","besuchen","anschauen","ansehen","termin"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Wir sind vor Kurzem nach … gezogen.","We recently moved to …"],["Wir suchen einen Platz für unsere Tochter.","We're looking for a place for our daughter."],["Haben Sie im August noch freie Plätze?","Do you still have free places in August?"],["Was kostet ein Platz pro Monat?","What does a place cost per month?"],["Wie sind Ihre Öffnungszeiten?","What are your opening hours?"],["Ist die Kita auch in den Ferien offen?","Is the nursery open during the holidays too?"],["Wäre es möglich, die Kita zu besichtigen?","Would it be possible to visit the nursery?"]],"model":"Sehr geehrte Damen und Herren,\n\nwir sind vor Kurzem nach Adliswil gezogen und suchen einen Kita-Platz für unsere Tochter. Sie ist drei Jahre alt und soll ab August drei Tage pro Woche zu Ihnen kommen.\n\nDeshalb habe ich einige Fragen an Sie. Haben Sie im August noch freie Plätze? Was kostet ein Platz pro Monat? Wie sind Ihre Öffnungszeiten, und ist die Kita auch in den Schulferien offen? Wäre es ausserdem möglich, die Kita vorher einmal zu besichtigen?\n\nVielen Dank im Voraus. Über eine baldige Antwort würde ich mich sehr freuen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Notice 'Deshalb habe ich einige Fragen an Sie' — one linking sentence before the questions. Small thing, but it's what lifts the text from A2 to B1."},{"id":"w_hotelB1","level":"B1","title":"Hotel in den Bergen","en":"Booking a mountain hotel and asking about sport","words":[75,110],"task":"Sie möchten im Sommer eine Woche in den Bergen verbringen. Schreiben Sie an das Hotel:\n– welches Zimmer und wann\n– was es kostet und ob Frühstück inbegriffen ist\n– ab wann man einchecken kann\n– welche Sportmöglichkeiten es gibt","taskEn":"Write to a mountain hotel: which room and when, price and breakfast, check-in time, what sports are available. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte"]},{"t":"Zimmer und Datum","en":"which room and when","k":["familienzimmer","doppelzimmer","zimmer","vom","bis","juli","august"]},{"t":"Frage: Preis und Frühstück","en":"ask about price and breakfast","k":["kostet","preis","frühstück","fruehstueck","inbegriffen","inklusive"]},{"t":"Frage: Check-in","en":"ask about check-in","k":["einchecken","check-in","ab wie viel uhr","ankunft"]},{"t":"Frage: Sport","en":"ask about sport","k":["sport","wandern","schwimmen","velo","fahrrad","möglichkeiten","moeglichkeiten"]},{"t":"Schlusssatz","en":"closing line","k":["baldige antwort","freuen","vielen dank"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Ich möchte mit meiner Familie eine Woche in den Bergen verbringen.","I'd like to spend a week in the mountains with my family."],["Ich hätte gerne ein Familienzimmer vom … bis …","I'd like a family room from … to …"],["Ist das Frühstück im Preis inbegriffen?","Is breakfast included in the price?"],["Ab wie viel Uhr kann man einchecken?","From what time can one check in?"],["Welche Sportmöglichkeiten gibt es bei Ihnen?","What sports facilities do you have?"],["Meine Kinder schwimmen sehr gern.","My children love swimming."]],"model":"Sehr geehrte Damen und Herren,\n\nich möchte im Juli mit meiner Familie eine Woche in den Bergen verbringen und interessiere mich sehr für Ihr Hotel.\n\nIch hätte gerne ein Familienzimmer vom 10. bis zum 17. Juli. Was kostet das Zimmer pro Nacht, und ist das Frühstück im Preis inbegriffen? Ab wie viel Uhr kann man am Anreisetag einchecken? Welche Sportmöglichkeiten gibt es ausserdem bei Ihnen? Mein Mann wandert sehr gern und unsere Kinder schwimmen jeden Tag.\n\nÜber eine baldige Antwort würde ich mich freuen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Adding one personal detail after a question ('mein Mann wandert gern') gets you to the word count naturally and sounds far more human than padding."},{"id":"w_shop","level":"B1","title":"E-Mail an einen Onlineshop","en":"Asking an online shop before ordering","words":[75,110],"task":"Sie möchten einen Fernseher kaufen. Schreiben Sie an den Onlineshop und fragen Sie:\n– ob sie liefern\n– was die Lieferung kostet\n– wann sie liefern können\n– ob sie eine Versicherung anbieten","taskEn":"Write to an online shop about buying a TV: do they deliver, what does it cost, when, and do they offer insurance. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte"]},{"t":"Einleitung: das Produkt","en":"say what you want to buy","k":["fernseher","gerät","geraet","internetseite","gefunden","bestellen"]},{"t":"Frage: Lieferung","en":"ask if they deliver","k":["liefern","lieferung","nach hause","zustellen"]},{"t":"Frage: Kosten","en":"ask the cost","k":["kostet","kosten","preis"]},{"t":"Frage: Liefertermin","en":"ask when","k":["wann","termin","wochenende","liefertag"]},{"t":"Frage: Versicherung","en":"ask about insurance","k":["versicherung","garantie","schutz"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Ich habe auf Ihrer Internetseite einen Fernseher gefunden.","I found a TV on your website."],["Bevor ich ihn bestelle, habe ich noch einige Fragen.","Before I order it I have a few questions."],["Liefern Sie das Gerät auch nach Hause?","Do you deliver the item to my home?"],["Was kostet die Lieferung?","What does delivery cost?"],["Ich bin nur am Wochenende zu Hause.","I'm only at home at the weekend."],["Bieten Sie auch eine Versicherung für das Gerät an?","Do you also offer insurance for the item?"]],"model":"Sehr geehrte Damen und Herren,\n\nich habe auf Ihrer Internetseite einen Fernseher gefunden, der mir sehr gut gefällt. Bevor ich ihn bestelle, habe ich noch einige Fragen.\n\nLiefern Sie das Gerät auch nach Hause, oder muss ich es im Geschäft abholen? Was kostet die Lieferung? Wann könnten Sie liefern, denn ich bin nur am Wochenende zu Hause. Und bieten Sie ausserdem eine Versicherung für das Gerät an?\n\nVielen Dank für Ihre Hilfe. Über eine baldige Antwort würde ich mich sehr freuen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"'denn ich bin nur am Wochenende zu Hause' — giving a reason for a question is easy marks. Every question can take a weil or denn clause."},{"id":"w_wohnung","level":"B1","title":"Bewerbung um eine Wohnung","en":"Applying for a flat a friend is leaving","words":[75,110],"task":"Eine Freundin zieht aus ihrer Wohnung aus. Sie möchten die Wohnung übernehmen. Schreiben Sie an die Vermieterin:\n– woher Sie von der Wohnung wissen\n– wer Sie sind\n– warum Sie die Wohnung möchten\n– bitten Sie um einen Besichtigungstermin","taskEn":"Write to a landlady about a flat your friend is leaving: how you heard, who you are, why you want it, ask to view it. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte","sehr geehrter"]},{"t":"Woher Sie es wissen","en":"how you heard about it","k":["freundin","freund","wohnt","zieht aus","gesagt","erfahren"]},{"t":"Wer Sie sind","en":"who you are","k":["familie","kinder","berufstätig","berufstaetig","arbeite","wir sind"]},{"t":"Warum Sie sie möchten","en":"why you want it","k":["weil","suchen","grössere","groessere","gegend","nähe","naehe"]},{"t":"Um Besichtigung bitten","en":"ask to view it","k":["besichtigen","besichtigung","anschauen","termin","möglich","moeglich"]},{"t":"Unterlagen anbieten","en":"offer documents","k":["unterlagen","dokumente","schicke","gerne"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Eine Freundin von mir wohnt zurzeit in Ihrer Wohnung.","A friend of mine currently lives in your flat."],["Sie zieht Ende Mai aus.","She is moving out at the end of May."],["Ich interessiere mich sehr für die Wohnung.","I'm very interested in the flat."],["Wir sind eine kleine Familie mit zwei Kindern.","We're a small family with two children."],["Wir suchen seit Längerem eine grössere Wohnung.","We've been looking for a bigger flat for a while."],["Wäre es möglich, die Wohnung zu besichtigen?","Would it be possible to view the flat?"],["Gerne schicke ich Ihnen alle nötigen Unterlagen.","I'll gladly send you all the necessary documents."]],"model":"Sehr geehrte Frau Weber,\n\neine Freundin von mir wohnt zurzeit in Ihrer Wohnung an der Seestrasse und zieht Ende Mai aus. Sie hat mir gesagt, dass die Wohnung frei wird, und ich interessiere mich sehr dafür.\n\nWir sind eine kleine Familie mit zwei Kindern und suchen seit Längerem eine grössere Wohnung in dieser Gegend. Mein Mann und ich sind beide berufstätig, und unsere Kinder gehen hier zur Schule.\n\nWäre es möglich, die Wohnung zu besichtigen? Gerne schicke ich Ihnen vorher alle nötigen Unterlagen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Here you're selling yourself, not just asking questions. Two sentences about who you are and why you're reliable is what a landlord actually wants to read."},{"id":"w_amt","level":"B1","title":"E-Mail an das Kreisbüro","en":"Registering after moving to Switzerland","words":[75,110],"task":"Sie sind neu in die Schweiz gezogen und müssen sich anmelden. Schreiben Sie an das Kreisbüro:\n– erklären Sie Ihre Situation\n– bitten Sie um einen Termin\n– fragen Sie, welche Unterlagen Sie brauchen\n– fragen Sie nach den Kosten","taskEn":"Write to the council office to register after moving: explain, request an appointment, ask which documents and what it costs. About 80 words.","points":[{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte"]},{"t":"Situation erklären","en":"explain your situation","k":["gezogen","umgezogen","neu","wohne","angekommen"]},{"t":"Um einen Termin bitten","en":"request an appointment","k":["termin","vereinbaren","könnten sie","koennten sie","bitte einen termin"]},{"t":"Frage: Unterlagen","en":"ask which documents","k":["unterlagen","dokumente","pass","mietvertrag","ausweis","mitbringen"]},{"t":"Frage: Kosten","en":"ask about the cost","k":["kostet","kosten","gebühr","gebuehr","preis"]},{"t":"Schlusssatz","en":"closing line","k":["vielen dank","baldige antwort","freuen","im voraus"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Ich bin vor zwei Wochen in die Schweiz gezogen.","I moved to Switzerland two weeks ago."],["Ich muss mich bei Ihnen anmelden.","I have to register with you."],["Ich möchte gerne einen Termin vereinbaren.","I'd like to make an appointment."],["Am liebsten wäre mir ein Vormittag.","A morning would suit me best."],["Welche Unterlagen muss ich mitbringen?","Which documents do I need to bring?"],["Brauche ich auch den Mietvertrag?","Do I also need the tenancy agreement?"],["Was kostet die Anmeldung?","What does registering cost?"]],"model":"Sehr geehrte Damen und Herren,\n\nich bin vor zwei Wochen aus Indien in die Schweiz gezogen und wohne jetzt in Zürich. Ich muss mich bei Ihnen anmelden und möchte dafür gerne einen Termin vereinbaren.\n\nKönnten Sie mir bitte einen Termin in den nächsten zwei Wochen geben? Am liebsten wäre mir ein Vormittag, weil ich am Nachmittag arbeite. Welche Unterlagen muss ich mitbringen, und brauche ich auch den Mietvertrag? Was kostet die Anmeldung?\n\nVielen Dank für Ihre Hilfe. Über eine baldige Antwort würde ich mich sehr freuen.\n\nMit freundlichen Grüssen\nAnna Keller","tip":"Useful beyond the exam — this is close to the email you'd really send. The Behörden vocabulary set in the Wörter tab covers the words used here."},{"id":"w_bewerbung","level":"B1","title":"Bewerbungsschreiben","en":"A job application letter","words":[85,120],"task":"Schreiben Sie eine Bewerbung. Wählen Sie die Stelle und die Firma selbst aus.\n– korrekte Anrede\n– Ihre Erfahrungen beschreiben\n– drei passende Fähigkeiten nennen\n– bedanken und um ein Vorstellungsgespräch bitten","taskEn":"Write a job application: choose the job and company yourself, describe your experience, name three relevant skills, thank them and ask for an interview. About 80–100 words.","points":[{"t":"Betreffzeile","en":"subject line","k":["betreff","bewerbung als","bewerbung um"]},{"t":"Korrekte Anrede","en":"correct formal greeting","k":["sehr geehrte damen und herren","sehr geehrte","sehr geehrter"]},{"t":"Auf die Stelle Bezug nehmen","en":"refer to the advertised job","k":["stellenanzeige","anzeige","stelle","internetseite","gelesen","bewerben"]},{"t":"Erfahrung beschreiben","en":"describe your experience","k":["erfahrung","jahre","gearbeitet","projekte","beruf"]},{"t":"Drei Fähigkeiten nennen","en":"name three skills","k":["sorgfältig","sorgfaeltig","teamfähig","teamfaehig","zuverlässig","zuverlaessig","lerne schnell","motiviert","kommunikativ","selbstständig"]},{"t":"Um ein Gespräch bitten","en":"ask for an interview","k":["vorstellungsgespräch","vorstellungsgespraech","gespräch","gespraech","kennenzulernen","einladung"]},{"t":"Lebenslauf erwähnen","en":"mention your CV","k":["lebenslauf","anhang","unterlagen","beigefügt","beigefuegt"]},{"t":"Grussformel","en":"sign-off","k":["freundlichen grüssen","freundlichen gruessen"]}],"phrases":[["Betreff: Bewerbung als …","Subject: Application for the post of …"],["ich habe Ihre Stellenanzeige gelesen und möchte mich um die Stelle bewerben","I read your job advert and would like to apply"],["Ich habe … Jahre Erfahrung in diesem Bereich.","I have … years of experience in this field."],["Ich habe in verschiedenen Projekten gearbeitet.","I've worked on various projects."],["Ich arbeite sorgfältig, lerne schnell und arbeite gern im Team.","I work carefully, learn quickly and enjoy teamwork."],["Über die Möglichkeit zu einem Vorstellungsgespräch würde ich mich sehr freuen.","I'd be delighted to have the chance of an interview."],["Meinen Lebenslauf finden Sie im Anhang.","You'll find my CV attached."]],"model":"Betreff: Bewerbung als [Ihr Beruf]\n\nSehr geehrte Damen und Herren,\n\nich habe Ihre Stellenanzeige auf Ihrer Internetseite gelesen und möchte mich um die Stelle als [Ihr Beruf] bewerben. Ihre Firma kenne ich seit Langem und ich würde sehr gerne bei Ihnen arbeiten.\n\nIch habe [X] Jahre Erfahrung in diesem Bereich und habe in verschiedenen Projekten mit unterschiedlichen Teams gearbeitet. Nach einer Familienpause möchte ich nun wieder in meinen Beruf zurückkehren.\n\nIch arbeite sehr sorgfältig, lerne schnell und arbeite gern im Team. Ausserdem verbessere ich meine Deutschkenntnisse laufend.\n\nÜber die Möglichkeit zu einem Vorstellungsgespräch würde ich mich sehr freuen. Meinen Lebenslauf finden Sie im Anhang.\n\nMit freundlichen Grüssen\n[Ihr Name]","tip":"The square brackets are for you to fill in — swap in your own job, years and name. This is the longest B1 task, so it's worth learning as a skeleton you can adapt to any advertised job."}];
+
 /* ================= grammar ================= */
 let gScores={};
 try{ gScores=JSON.parse(store.get("hoerbar.gram")||"{}"); }catch(e){ gScores={}; }
@@ -2946,14 +3010,18 @@ const norm = s => (s||"").toLowerCase().trim()
   .replace(/[.!?,;:]/g,"").replace(/\s+/g," ")
   .replace(/ß/g,"ss").replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue");
 
-function showTab(g){
-  document.body.classList.toggle("g", g);
-  $("tabW").setAttribute("aria-selected", g?"false":"true");
-  $("tabG").setAttribute("aria-selected", g?"true":"false");
-  if(g){ autoOn=false; try{ stopAll(); }catch(e){}  var a=$("auto"); if(a) a.setAttribute("aria-pressed","false"); }
+function showTab(t){
+  if(t===true) t="g"; if(t===false) t="w";
+  document.body.classList.toggle("g", t==="g");
+  document.body.classList.toggle("s", t==="s");
+  $("tabW").setAttribute("aria-selected", t==="w"?"true":"false");
+  $("tabG").setAttribute("aria-selected", t==="g"?"true":"false");
+  $("tabS").setAttribute("aria-selected", t==="s"?"true":"false");
+  if(t!=="w"){ autoOn=false; try{ stopAll(); }catch(e){} var a=$("auto"); if(a) a.setAttribute("aria-pressed","false"); }
 }
-$("tabW").onclick=()=>showTab(false);
-$("tabG").onclick=()=>{ showTab(true); if(gT) startTopic(gT); else buildList(); };
+$("tabW").onclick=()=>showTab("w");
+$("tabG").onclick=()=>{ showTab("g"); if(gT) startTopic(gT); else buildList(); };
+$("tabS").onclick=()=>{ showTab("s"); if(wT) openWrite(wT); else buildWList(); };
 
 function buildList(){
   $("sheet").classList.remove("open");
@@ -3094,6 +3162,167 @@ function finish(){
 
 $("gback").onclick=()=>{ gT=null; buildList(); };
 buildList();
+
+/* ================= writing ================= */
+let wT=null, wSeg="a";
+let wDrafts={};
+try{ wDrafts=JSON.parse(store.get("hoerbar.drafts")||"{}"); }catch(e){ wDrafts={}; }
+
+function buildWList(){
+  $("wex").hidden=true; $("wlist").hidden=false;
+  const el=$("wlist"); el.innerHTML="";
+  ["A1","A2","B1"].forEach(lv=>{
+    const list=WTOPICS.filter(t=>t.level===lv);
+    if(!list.length) return;
+    const hd=document.createElement("p"); hd.className="lvl"; hd.textContent=lv; el.appendChild(hd);
+    list.forEach(t=>{
+      const b=document.createElement("button"); b.className="wtopic";
+      let has=wDrafts[t.id]&&wDrafts[t.id].trim();
+      if(has&&t.fields){ try{ const o=JSON.parse(wDrafts[t.id]); has=Object.keys(o).some(k=>(o[k]||"").trim()); }catch(e){} }
+      b.innerHTML='<h3></h3><span class="score'+(has?" done":"")+'"></span>';
+      b.querySelector("h3").innerHTML=esc(t.title)+'<em>'+esc(t.en)+'</em>';
+      b.querySelector(".score").textContent = has ? "Entwurf" : (t.words[1]? "ca. "+t.words[1]+" W." : "");
+      b.onclick=()=>openWrite(t);
+      el.appendChild(b);
+    });
+  });
+}
+
+function openWrite(t){
+  wT=t; wSeg="a";
+  $("wlist").hidden=true; $("wex").hidden=false;
+  $("wtitle").innerHTML=esc(t.title)+'<em>'+esc(t.en)+'</em>';
+  renderSeg();
+}
+
+function setSeg(s){ wSeg=s; renderSeg(); }
+$("segA").onclick=()=>setSeg("a");
+$("segM").onclick=()=>setSeg("m");
+$("segP").onclick=()=>setSeg("p");
+$("wback").onclick=()=>{ wT=null; buildWList(); };
+
+function renderSeg(){
+  $("segA").setAttribute("aria-selected", wSeg==="a"?"true":"false");
+  $("segM").setAttribute("aria-selected", wSeg==="m"?"true":"false");
+  $("segP").setAttribute("aria-selected", wSeg==="p"?"true":"false");
+  const b=$("wbody"), f=$("wfoot"); b.scrollTop=0;
+
+  if(wSeg==="a"){
+    let s='<div class="taskbox"><p>'+esc(wT.task)+'</p><p class="ten">'+esc(wT.taskEn)+'</p></div>';
+    s+='<p class="qnum">Das muss drin sein</p>';
+    wT.points.forEach(pt=>{ s+='<div class="chk"><span class="mk">•</span><span class="cn">'+esc(pt.t)+
+      '<span class="ce">'+esc(pt.en)+'</span></span></div>'; });
+    if(wT.phrases&&wT.phrases.length){
+      s+='<p class="qnum" style="margin-top:18px">Bausteine <span style="text-transform:none">— useful phrases</span></p>';
+      s+='<table class="ph">'+wT.phrases.map(x=>'<tr><td>'+esc(x[0])+'</td><td class="e">'+esc(x[1])+'</td></tr>').join('')+'</table>';
+    }
+    if(wT.tip) s+='<p class="tipbox">'+esc(wT.tip)+'</p>';
+    b.innerHTML=s;
+    f.innerHTML='<button class="gbtn" id="wgo">Muster ansehen</button>';
+    $("wgo").onclick=()=>setSeg("m");
+
+  } else if(wSeg==="m"){
+    b.innerHTML='<div class="mail">'+esc(wT.model)+'</div>'+
+      (wT.tip?'<p class="tipbox">'+esc(wT.tip)+'</p>':'');
+    f.innerHTML='<button class="gbtn hear" id="whear" aria-label="Read aloud">▶</button>'+
+      '<button class="gbtn" id="wtry">Selbst schreiben</button>';
+    $("whear").onclick=()=>speakLong(wT.model);
+    $("wtry").onclick=()=>setSeg("p");
+
+  } else if(wT.fields){
+    let saved={}; try{ saved=JSON.parse(wDrafts[wT.id]||"{}"); }catch(e){ saved={}; }
+    b.innerHTML='<div class="taskbox"><p>'+esc(wT.task)+'</p></div>'+
+      wT.fields.map(fd=>'<label class="fld"><span class="fl">'+esc(fd.de)+' <em>— '+esc(fd.en)+'</em></span>'+
+        '<input class="fi" id="f_'+fd.k+'" type="text" autocorrect="off" spellcheck="false" placeholder="'+esc(fd.ph)+'"></label>').join('')+
+      '<div id="wcheck"></div>';
+    wT.fields.forEach(fd=>{
+      const el=$("f_"+fd.k);
+      el.value=saved[fd.k]||"";
+      el.addEventListener("input",saveForm);
+    });
+    f.innerHTML='<button class="gbtn sec" id="wclear">Löschen</button>'+
+      '<button class="gbtn" id="wcheckbtn">Prüfen</button>';
+    $("wcheckbtn").onclick=checkForm;
+    $("wclear").onclick=()=>{ wT.fields.forEach(fd=>{$("f_"+fd.k).value=""; $("f_"+fd.k).className="fi";}); saveForm(); $("wcheck").innerHTML=""; };
+
+  } else {
+    const d=wDrafts[wT.id]||"";
+    b.innerHTML='<div class="taskbox"><p>'+esc(wT.task)+'</p></div>'+
+      '<textarea id="wdraft" placeholder="Schreiben Sie hier Ihre E-Mail ..."></textarea>'+
+      '<p class="wcount" id="wc"></p><div id="wcheck"></div>';
+    $("wdraft").value=d;
+    $("wdraft").addEventListener("input",()=>{ countWords(); saveDraft(); });
+    countWords();
+    f.innerHTML='<button class="gbtn sec" id="wclear">Löschen</button>'+
+      '<button class="gbtn" id="wcheckbtn">Prüfen</button>';
+    $("wcheckbtn").onclick=checkDraft;
+    $("wclear").onclick=()=>{ $("wdraft").value=""; countWords(); saveDraft(); $("wcheck").innerHTML=""; };
+  }
+}
+
+function wordCount(s){ return (s.trim().match(/[^\s]+/g)||[]).length; }
+function countWords(){
+  const n=wordCount($("wdraft").value), lo=wT.words[0], hi=wT.words[1];
+  const el=$("wc");
+  if(!hi){ el.textContent=n+" Wörter"; el.className="wcount"; return; }
+  const ok=n>=lo&&n<=hi*1.4;
+  el.textContent=n+" Wörter (Ziel: ca. "+hi+")";
+  el.className="wcount"+(ok?" good":"");
+}
+function saveDraft(){ wDrafts[wT.id]=$("wdraft").value; store.set("hoerbar.drafts", JSON.stringify(wDrafts)); }
+
+function saveForm(){
+  const o={}; wT.fields.forEach(fd=>o[fd.k]=$("f_"+fd.k).value);
+  wDrafts[wT.id]=JSON.stringify(o); store.set("hoerbar.drafts", JSON.stringify(wDrafts));
+}
+
+function checkForm(){
+  let ok=0; let s='<p class="qnum" style="margin-top:18px">Ergebnis</p>';
+  wT.fields.forEach(fd=>{
+    const el=$("f_"+fd.k), v=(el.value||"").trim();
+    let good=true, msg="";
+    if(!v){ good=false; msg="Dieses Feld ist noch leer."; }
+    else if(fd.re && !(new RegExp(fd.re,"i")).test(v)){ good=false; msg=fd.hint; }
+    el.className = good ? "fi" : "fi bad";
+    if(good) ok++;
+    s+='<div class="chk '+(good?"yes":"no")+'"><span class="mk">'+(good?"✓":"–")+'</span><span class="cn">'+
+       esc(fd.de)+'<span class="ce">'+esc(good?fd.en:msg)+'</span></span></div>';
+  });
+  s+='<p class="tipbox">'+ok+' von '+wT.fields.length+' Feldern korrekt ausgefüllt.'+
+     (ok===wT.fields.length?' Alles vollständig.':' Die markierten Felder noch einmal ansehen.')+'</p>';
+  $("wcheck").innerHTML=s;
+}
+
+function checkDraft(){
+  const raw=$("wdraft").value;
+  if(!raw.trim()){ $("wdraft").focus(); return; }
+  const t=keyPair(raw);
+  let hit=0;
+  let s='<p class="qnum" style="margin-top:18px">Ergebnis</p>';
+  wT.points.forEach(pt=>{
+    const ok=pt.k.some(k=>{ const kp=keyPair(k); return t.ae.includes(kp.ae)||t.pl.includes(kp.pl); });
+    if(ok) hit++;
+    s+='<div class="chk '+(ok?"yes":"no")+'"><span class="mk">'+(ok?"✓":"–")+'</span><span class="cn">'+
+       esc(pt.t)+'<span class="ce">'+esc(pt.en)+'</span></span></div>';
+  });
+  const n=wordCount(raw), hi=wT.words[1];
+  s+='<p class="tipbox">'+hit+' von '+wT.points.length+' Punkten gefunden. '+
+     (hi? n+' Wörter geschrieben, Ziel ca. '+hi+'. ':'')+
+     'This check looks for keywords, so it can miss a good sentence that uses different words. Compare with the Muster to be sure.</p>';
+  $("wcheck").innerHTML=s;
+  $("wcheck").scrollIntoView&&$("wcheck").scrollIntoView({block:"nearest"});
+}
+
+function speakLong(text){
+  try{
+    speechSynthesis.cancel();
+    text.split(/\n+|(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>1)
+      .forEach(part=>speechSynthesis.speak(utter(part,0.9)));
+  }catch(e){}
+}
+
+buildWList();
+
 </script>
 </body>
 </html>
