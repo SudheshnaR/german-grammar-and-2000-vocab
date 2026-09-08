@@ -108,7 +108,19 @@ input.ans:focus{outline:2px solid var(--amber);outline-offset:1px}
 /* ---------- header ---------- */
 header{padding:14px 18px 10px;flex:0 0 auto}
 .brand{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.brand h1{font-family:var(--serif);font-size:22px;font-weight:600;margin:0;letter-spacing:.2px}
+.brand h1{font-family:var(--serif);font-size:22px;font-weight:600;margin:0;letter-spacing:.2px;flex:1}
+.searchbtn{border:1px solid var(--line);background:var(--card);color:var(--soft);border-radius:999px;
+  padding:5px 13px;font-family:var(--sans);font-size:12.5px;cursor:pointer}
+#wq{width:100%;font-family:var(--serif);font-size:18px;padding:11px 13px;border:1px solid var(--line);
+  border-radius:10px;background:var(--card);color:var(--ink);-webkit-appearance:none}
+#wq:focus{outline:2px solid var(--amber);outline-offset:1px}
+.rescount{font-family:var(--sans);font-size:11.5px;color:var(--soft);margin:12px 0 8px}
+.res{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);
+  border-radius:4px 12px 12px 4px;padding:11px 13px;margin-bottom:6px;cursor:pointer}
+.res .rw{display:block;font-family:var(--serif);font-size:17px;font-weight:600;line-height:1.3}
+.res .rg{display:block;font-family:var(--serif);font-size:14.5px;font-style:italic;color:var(--soft);margin-top:2px}
+.res .rs{display:block;font-family:var(--sans);font-size:11px;color:var(--soft);margin-top:5px;opacity:.85}
+.res mark{background:var(--amber-tint);color:inherit;border-radius:2px;padding:0 1px}
 .brand span{font-size:12.5px;color:var(--soft)}
 .sets{display:flex;gap:7px;overflow-x:auto;margin-top:11px;padding-bottom:3px;scrollbar-width:none}
 .sets::-webkit-scrollbar{display:none}
@@ -190,6 +202,15 @@ button:focus-visible,.set:focus-visible{outline:2px solid var(--amber);outline-o
 </head>
 <body>
 
+<div class="sheet" id="wsheet"><div class="sheetin">
+  <div class="sheethd"><h3>Wort suchen</h3><button id="wx" aria-label="Close">×</button></div>
+  <div class="sheetbd">
+    <input id="wq" type="search" autocapitalize="none" autocorrect="off" spellcheck="false"
+           placeholder="Deutsch oder Englisch eingeben">
+    <div id="wres"></div>
+  </div>
+</div></div>
+
 <div class="sheet" id="sheet"><div class="sheetin">
   <div class="sheethd"><h3 id="sheettitle">Formen</h3><button id="sheetx" aria-label="Close">×</button></div>
   <div class="sheetbd" id="sheetbd"></div>
@@ -212,6 +233,7 @@ button:focus-visible,.set:focus-visible{outline:2px solid var(--amber);outline-o
 <header>
   <div class="brand">
     <h1>Hörbar</h1>
+    <button class="searchbtn" id="wopen">Suchen</button>
     <span id="counter">–</span>
   </div>
   <div class="sets" id="sets"></div>
@@ -2840,6 +2862,80 @@ document.addEventListener("visibilitychange", ()=>{
 });
 
 buildSets(); render();
+
+/* ================= word search ================= */
+const INDEX=[];
+function keyPair(s){
+  const b=(s||"").toLowerCase().replace(/[.!?,;:()]/g,"").replace(/\s+/g," ").trim();
+  return { ae: b.replace(/ß/g,"ss").replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue"),
+           pl: b.replace(/ß/g,"ss").replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u") };
+}
+SETS.forEach((s,si)=>s.words.forEach((w,wi)=>INDEX.push({
+  si,wi,w:w[0],en:w[1],de:w[2],ende:w[3],set:s.name,
+  kw:keyPair(w[0]), ken:keyPair(w[1]), kde:keyPair(w[2]), kende:keyPair(w[3])
+})));
+
+const kEq     = (p,q)=> p.ae===q.ae || p.pl===q.pl;
+const kStarts = (p,q)=> p.ae.startsWith(q.ae) || p.pl.startsWith(q.pl);
+const kHas    = (p,q)=> p.ae.includes(q.ae) || p.pl.includes(q.pl);
+
+function scoreHit(e,q){
+  if(kEq(e.kw,q)||kEq(e.ken,q)) return 0;
+  if(kStarts(e.kw,q)) return 1;
+  if(kStarts(e.ken,q)) return 2;
+  if(kHas(e.kw,q)) return 3;
+  if(kHas(e.ken,q)) return 4;
+  if(kHas(e.kde,q)||kHas(e.kende,q)) return 5;
+  return -1;
+}
+
+function hilite(txt,q){
+  const t=String(txt);
+  const low=t.toLowerCase().replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u");
+  const i=low.indexOf(q.pl);
+  if(i<0||!q.pl) return esc(t);
+  return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+q.pl.length))+'</mark>'+esc(t.slice(i+q.pl.length));
+}
+
+function runSearch(){
+  const raw=$("wq").value, q=keyPair(raw), out=$("wres");
+  if(q.pl.length<2){ out.innerHTML='<p class="rescount">Mindestens zwei Buchstaben eingeben.</p>'; return; }
+  const hits=[];
+  for(const e of INDEX){ const sc=scoreHit(e,q); if(sc>=0) hits.push({e,sc}); }
+  hits.sort((a,b)=>a.sc-b.sc || a.e.w.length-b.e.w.length);
+  if(!hits.length){ out.innerHTML='<p class="rescount">Keine Treffer für "'+esc(raw)+'".</p>'; return; }
+  const show=hits.slice(0,60);
+  let html='<p class="rescount">'+hits.length+' Treffer'+(hits.length>60?', erste 60':'')+'</p>';
+  show.forEach(({e})=>{
+    html+='<button class="res" data-s="'+e.si+'" data-i="'+e.wi+'">'+
+      '<span class="rw">'+hilite(e.w,q)+'</span>'+
+      '<span class="rg">'+hilite(e.en,q)+'</span>'+
+      '<span class="rs">'+esc(e.set)+' · '+esc(e.de)+'</span></button>';
+  });
+  out.innerHTML=html;
+  out.querySelectorAll(".res").forEach(b=>b.onclick=()=>gotoWord(+b.dataset.s,+b.dataset.i));
+}
+
+function gotoWord(si,wi){
+  autoOn=false; $("auto").setAttribute("aria-pressed","false");
+  stopAll();
+  setIx=si; i=wi; store.set("hoerbar.set", String(si));
+  buildSets(); render();
+  $("wsheet").classList.remove("open");
+  if($("wq").blur) $("wq").blur();
+  try{ speakCard(); }catch(e){}
+}
+
+$("wopen").onclick=()=>{
+  showTab(false);
+  $("wsheet").classList.add("open");
+  $("wres").innerHTML='<p class="rescount">Mindestens zwei Buchstaben eingeben.</p>';
+  $("wq").value=""; setTimeout(()=>$("wq").focus(),50);
+};
+$("wx").onclick=()=>$("wsheet").classList.remove("open");
+$("wsheet").onclick=e=>{ if(e.target===$("wsheet")) $("wsheet").classList.remove("open"); };
+$("wq").addEventListener("input",runSearch);
+$("wq").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); $("wq").blur(); }});
 
 /* ================= grammar ================= */
 let gScores={};
