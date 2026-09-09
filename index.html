@@ -126,6 +126,12 @@ body.k header,body.k main,body.k footer{display:none}
 .trans{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
   font-family:var(--serif);font-size:15.5px;line-height:1.55;margin-top:16px;min-height:52px}
 .trans em{font-style:normal;color:var(--soft)}
+.myrec{display:flex;gap:8px;margin-top:14px}
+.myrec button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);
+  font-family:var(--sans);font-size:13px;padding:11px 4px;border-radius:10px;cursor:pointer}
+.myrec button.on{background:var(--moss);border-color:var(--moss);color:#fff}
+.myrec button.del{flex:0 0 54px;color:var(--soft)}
+.recnote{font-family:var(--sans);font-size:11.5px;color:var(--soft);text-align:center;margin:9px 0 0;line-height:1.5}
 .modes{display:flex;gap:8px;margin-bottom:16px}
 .modes button{flex:1;border:1px solid var(--line);background:transparent;color:var(--soft);
   font-family:var(--sans);font-size:13px;padding:10px 4px;border-radius:10px;cursor:pointer}
@@ -2808,6 +2814,7 @@ pickVoice();
 if(typeof speechSynthesis!=="undefined") speechSynthesis.onvoiceschanged = pickVoice;
 
 function hardStop(){
+  try{ aStopPlay(); }catch(e){}
   try{
     speechSynthesis.cancel();
     if(speechSynthesis.paused) speechSynthesis.resume();
@@ -3404,6 +3411,77 @@ function speakLong(text){
 
 buildWList();
 
+/* ================= own voice recordings ================= */
+let aDB=null, aHave=new Set(), aPlaying=null, aRec=null, aChunks=[], aStream=null;
+
+function aOpen(){
+  return new Promise((res,rej)=>{
+    if(aDB) return res(aDB);
+    try{
+      const r=indexedDB.open("hoerbar-audio",1);
+      r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains("rec")) r.result.createObjectStore("rec"); };
+      r.onsuccess=()=>{ aDB=r.result; res(aDB); };
+      r.onerror=()=>rej(r.error);
+    }catch(e){ rej(e); }
+  });
+}
+function aPut(id,blob){ return aOpen().then(d=>new Promise((res,rej)=>{
+  const tx=d.transaction("rec","readwrite"); tx.objectStore("rec").put(blob,id);
+  tx.oncomplete=()=>{ aHave.add(id); res(); }; tx.onerror=()=>rej(tx.error); })); }
+function aGet(id){ return aOpen().then(d=>new Promise((res,rej)=>{
+  const rq=d.transaction("rec","readonly").objectStore("rec").get(id);
+  rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>rej(rq.error); })); }
+function aDel(id){ return aOpen().then(d=>new Promise((res,rej)=>{
+  const tx=d.transaction("rec","readwrite"); tx.objectStore("rec").delete(id);
+  tx.oncomplete=()=>{ aHave.delete(id); res(); }; tx.onerror=()=>rej(tx.error); })); }
+function aLoadKeys(){ return aOpen().then(d=>new Promise(res=>{
+  const rq=d.transaction("rec","readonly").objectStore("rec").getAllKeys();
+  rq.onsuccess=()=>{ (rq.result||[]).forEach(k=>aHave.add(k)); res(); }; rq.onerror=()=>res(); })).catch(()=>{}); }
+
+function aStopPlay(){ if(aPlaying){ try{ aPlaying.pause(); }catch(e){} aPlaying=null; } }
+
+function aPlay(id,btn){
+  if(aPlaying){ aStopPlay(); if(btn) btn.className=""; return; }
+  aGet(id).then(blob=>{
+    if(!blob) return;
+    const url=URL.createObjectURL(blob);
+    const au=new Audio(url);
+    aPlaying=au;
+    if(btn) btn.className="on";
+    au.onended=()=>{ aPlaying=null; if(btn) btn.className=""; URL.revokeObjectURL(url); };
+    au.onerror=()=>{ aPlaying=null; if(btn) btn.className=""; };
+    au.play().catch(()=>{ aPlaying=null; if(btn) btn.className=""; });
+  }).catch(()=>{});
+}
+
+function aCanRecord(){
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+}
+function aPickType(){
+  const opts=["audio/mp4","audio/webm;codecs=opus","audio/webm",""];
+  for(const t of opts){ try{ if(!t || MediaRecorder.isTypeSupported(t)) return t; }catch(e){} }
+  return "";
+}
+function aStart(id,onFail){
+  if(!aCanRecord()){ onFail&&onFail("Dieses Gerät erlaubt keine Aufnahme im Browser."); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(st=>{
+    aStream=st; aChunks=[];
+    const mt=aPickType();
+    aRec = mt ? new MediaRecorder(st,{mimeType:mt}) : new MediaRecorder(st);
+    aRec.ondataavailable=e=>{ if(e.data&&e.data.size) aChunks.push(e.data); };
+    aRec.onstop=()=>{
+      try{ aStream.getTracks().forEach(t=>t.stop()); }catch(e){}
+      aStream=null;
+      if(!aChunks.length) return;
+      const blob=new Blob(aChunks,{type:aChunks[0].type||"audio/mp4"});
+      aPut(id,blob).then(()=>{ if(kT&&kT.id===id&&kSeg==="s") renderKSeg(); }).catch(()=>{});
+    };
+    aRec.start();
+  }).catch(()=>{ onFail&&onFail("Kein Zugriff auf das Mikrofon. In Safari öffnen und die Erlaubnis geben."); });
+}
+function aStop(){ if(aRec){ try{ if(aRec.state!=="inactive") aRec.stop(); }catch(e){} aRec=null; } 
+  if(aStream){ try{ aStream.getTracks().forEach(t=>t.stop()); }catch(e){} aStream=null; } }
+
 /* ================= speaking ================= */
 let kT=null, kSeg="a", kRec=null, kSaid="", kTimer=null, kLeft=0, kRunning=false, kGot=false;
 let kMode = store.get("hoerbar.kmode")||"with";
@@ -3495,22 +3573,35 @@ function renderKSeg(){
          '<button id="kall">Ganzen Text hören</button>'+
          '<button id="kslow2">Langsam</button>'+
          '<button id="ken" aria-pressed="'+(kEn?"true":"false")+'">Englisch</button></div>';
+      if(aHave.has(kT.id)) s+='<div class="myrec"><button id="kmyplay2">▶ Meine Aufnahme anhören</button></div>';
     }
     s+='<p class="timer" id="ktime">'+fmt(kT.sec)+'</p>';
     s+='<button class="mic" id="kmic" aria-label="Timer starten">●</button>';
     s+='<p class="mictxt" id="kmt">Tippen, laut sprechen — der Timer läuft mit</p>';
     s+='<div class="nosr">Danach: Tippen Sie unten auf das Feld und benutzen Sie die <b>Mikrofon-Taste Ihrer Tastatur</b>, um zu diktieren, was Sie gesagt haben. Stellen Sie die Tastatur dafür auf Deutsch. Dann auf Prüfen tippen.</div>';
+    if(aHave.has(kT.id)){
+      s+='<div class="myrec"><button id="kmyplay">▶ Meine Aufnahme</button>'+
+         '<button id="kmydel" class="del" aria-label="Aufnahme löschen">✕</button></div>';
+      s+='<p class="recnote">Ihre eigene Stimme. Der Text oben wird weiterhin vom Gerät vorgelesen — beides bleibt da.</p>';
+    } else if(aCanRecord()){
+      s+='<p class="recnote">Beim Sprechen wird Ihre Stimme aufgenommen, damit Sie sie danach anhören können.</p>';
+    }
     s+='<textarea id="ksay" placeholder="Diktieren oder tippen Sie hier, was Sie gesagt haben …"></textarea>';
     s+='<div id="kres"></div>';
     b.innerHTML=s;
     $("ksay").value=kSaid;
     $("ksay").addEventListener("input",()=>{ kSaid=$("ksay").value; });
     $("kmic").onclick=toggleRec;
+    if(aHave.has(kT.id)){
+      $("kmyplay").onclick=()=>{ hardStop(); aPlay(kT.id,$("kmyplay")); };
+      $("kmydel").onclick=()=>{ aStopPlay(); aDel(kT.id).then(()=>renderKSeg()).catch(()=>{}); };
+    }
     if(hasText){
       $("kmw").onclick=()=>{ kMode="with"; store.set("hoerbar.kmode",kMode); renderKSeg(); };
       $("kmo").onclick=()=>{ kMode="without"; store.set("hoerbar.kmode",kMode); renderKSeg(); };
     }
     if(hasText && kMode==="with"){
+      if(aHave.has(kT.id)) $("kmyplay2").onclick=()=>{ hardStop(); aPlay(kT.id,null); };
       $("kall").onclick=()=>speakParas(0.92);
       $("kslow2").onclick=()=>speakParas(0.7);
       $("ken").onclick=()=>{ kEn=!kEn; store.set("hoerbar.ken", kEn?"1":"0");
@@ -3562,9 +3653,11 @@ function stopTimer(){ if(kTimer){ clearInterval(kTimer); kTimer=null; } }
 
 function toggleRec(){
   if(kRunning){ stopRec(); stopTimer(); return; }
+  hardStop(); aStopPlay();
   kRunning=true; $("kmic").className="mic rec"; $("kmic").textContent="■";
-  $("kmt").textContent = SR ? "Ich höre zu … noch einmal tippen zum Beenden" : "Sprechen Sie laut — tippen zum Beenden";
+  $("kmt").textContent = "Aufnahme läuft — noch einmal tippen zum Beenden";
   startTimer();
+  aStart(kT.id, msg=>{ const el=$("kmt"); if(el) el.textContent=msg+" Der Timer läuft trotzdem."; });
   if(!SR) return;
   try{
     kRec=new SR();
@@ -3585,6 +3678,7 @@ function toggleRec(){
   }
 }
 function stopRec(){
+  aStop();
   kRunning=false;
   const m=$("kmic"); if(m){ m.className="mic"; m.textContent="●"; }
   if(kRec){ try{ kRec.stop(); }catch(e){} kRec=null; }
@@ -3623,6 +3717,7 @@ function checkSpeech(){
   $("kres").innerHTML=s;
 }
 
+aLoadKeys().then(()=>{ if(kT&&kSeg==="s") renderKSeg(); else buildKList(); });
 buildKList();
 
 /* ================= global audio stop ================= */
@@ -3630,6 +3725,7 @@ $("stopall").onclick=()=>{ autoOn=false; var a=$("auto"); if(a) a.setAttribute("
 setInterval(()=>{
   let on=false;
   try{ on = speechSynthesis.speaking || speechSynthesis.pending; }catch(e){}
+  if(aPlaying) on=true;
   const b=$("stopall"); if(b) b.className = on ? "stopbar on" : "stopbar";
 },400);
 
