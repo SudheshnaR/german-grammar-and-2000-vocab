@@ -76,6 +76,10 @@ td{padding:7px 9px;border-top:1px solid var(--line);vertical-align:top}
 td:first-child{font-family:var(--sans);font-size:12.5px;color:var(--soft);white-space:nowrap}
 .tbl.one td:first-child{width:34%}
 .tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stopbar{position:fixed;right:16px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:60;
+  border:0;border-radius:999px;background:var(--amber);color:#fff;font-family:var(--sans);font-size:14px;
+  font-weight:600;padding:13px 20px;box-shadow:0 3px 14px rgba(19,32,42,.28);cursor:pointer;display:none}
+.stopbar.on{display:block}
 .sheet{position:fixed;inset:0;background:rgba(19,32,42,.35);display:none;z-index:50}
 .sheet.open{display:block}
 .sheetin{position:absolute;left:0;right:0;bottom:0;top:8%;background:var(--paper);
@@ -122,6 +126,20 @@ body.k header,body.k main,body.k footer{display:none}
 .trans{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
   font-family:var(--serif);font-size:15.5px;line-height:1.55;margin-top:16px;min-height:52px}
 .trans em{font-style:normal;color:var(--soft)}
+.modes{display:flex;gap:8px;margin-bottom:16px}
+.modes button{flex:1;border:1px solid var(--line);background:transparent;color:var(--soft);
+  font-family:var(--sans);font-size:13px;padding:10px 4px;border-radius:10px;cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.sline{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line)}
+.sline:first-of-type{border-top:0}
+.sline .pb{flex:0 0 34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);
+  color:var(--ink);font-size:13px;cursor:pointer;display:grid;place-items:center;margin-top:2px}
+.sline .pb.on{background:var(--amber);border-color:var(--amber);color:var(--paper)}
+.sline .st{flex:1;min-width:0}
+.sline .st .d{font-family:var(--serif);font-size:16px;line-height:1.55;margin:0}
+.sline .st .e{font-family:var(--sans);font-size:12.5px;color:var(--soft);line-height:1.45;margin:4px 0 0}
+.hideen .sline .st .e{display:none}
+.readnote{font-family:var(--sans);font-size:12.5px;color:var(--soft);line-height:1.55;margin:0 0 14px}
 #ksay{width:100%;min-height:130px;font-family:var(--serif);font-size:16px;line-height:1.6;padding:13px;
   border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);
   -webkit-appearance:none;resize:vertical;margin-top:14px}
@@ -271,6 +289,8 @@ button:focus-visible,.set:focus-visible{outline:2px solid var(--amber);outline-o
 </style>
 </head>
 <body>
+
+<button class="stopbar" id="stopall">■ Ton stoppen</button>
 
 <div class="sheet" id="wsheet"><div class="sheetin">
   <div class="sheethd"><h3>Wort suchen</h3><button id="wx" aria-label="Close">×</button></div>
@@ -2787,6 +2807,18 @@ function pickVoice(){
 pickVoice();
 if(typeof speechSynthesis!=="undefined") speechSynthesis.onvoiceschanged = pickVoice;
 
+function hardStop(){
+  try{
+    speechSynthesis.cancel();
+    if(speechSynthesis.paused) speechSynthesis.resume();
+    speechSynthesis.cancel();
+  }catch(e){}
+  try{
+    document.querySelectorAll(".pb.on").forEach(x=>{ x.className="pb"; });
+  }catch(e){}
+  try{ setSpeaking(false); }catch(e){}
+}
+
 function utter(text, rate){
   const u = new SpeechSynthesisUtterance(text);
   u.lang = voice ? voice.lang : "de-DE";
@@ -2828,7 +2860,7 @@ function setSpeaking(on){
 
 function stopAll(){
   runId++;
-  speechSynthesis.cancel();
+  try{ speechSynthesis.cancel(); if(speechSynthesis.paused) speechSynthesis.resume(); speechSynthesis.cancel(); }catch(e){}
   setSpeaking(false);
 }
 
@@ -2958,7 +2990,7 @@ card.addEventListener("touchend", e=>{
 }, {passive:true});
 
 document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden){ autoOn=false; $("auto").setAttribute("aria-pressed","false"); stopAll(); }
+  if(document.hidden){ autoOn=false; $("auto").setAttribute("aria-pressed","false"); stopAll(); try{ hardStop(); }catch(e){} }
 });
 
 buildSets(); render();
@@ -3058,7 +3090,9 @@ function showTab(t){
   $("tabG").setAttribute("aria-selected", t==="g"?"true":"false");
   $("tabS").setAttribute("aria-selected", t==="s"?"true":"false");
   $("tabK").setAttribute("aria-selected", t==="k"?"true":"false");
-  if(t!=="w"){ autoOn=false; try{ stopAll(); }catch(e){} var a=$("auto"); if(a) a.setAttribute("aria-pressed","false"); }
+  autoOn=false; var a=$("auto"); if(a) a.setAttribute("aria-pressed","false");
+  try{ stopAll(); }catch(e){}
+  try{ hardStop(); }catch(e){}
 }
 $("tabW").onclick=()=>showTab("w");
 $("tabG").onclick=()=>{ showTab("g"); if(gT) startTopic(gT); else buildList(); };
@@ -3066,6 +3100,7 @@ $("tabS").onclick=()=>{ showTab("s"); if(wT) openWrite(wT); else buildWList(); }
 $("tabK").onclick=()=>{ showTab("k"); if(kT) openSpeak(kT); else buildKList(); };
 
 function buildList(){
+  hardStop();
   $("sheet").classList.remove("open");
   $("gex").hidden=true; $("glist").hidden=false;
   const el=$("glist"); el.innerHTML="";
@@ -3086,6 +3121,7 @@ function buildList(){
 }
 
 function startTopic(t){
+  hardStop();
   gT=t; gI=0; gRight=0;
   $("glist").hidden=true; $("gex").hidden=false;
   $("gtitle").innerHTML=esc(t.title)+(t.en?'<em>'+esc(t.en)+'</em>':'');
@@ -3093,6 +3129,7 @@ function startTopic(t){
 }
 
 function renderQ(){
+  hardStop();
   gPicked=null; gChecked=false;
   $("gscore").textContent = gRight+"/"+gT.items.length;
   const it=gT.items[gI];
@@ -3211,6 +3248,7 @@ let wDrafts={};
 try{ wDrafts=JSON.parse(store.get("hoerbar.drafts")||"{}"); }catch(e){ wDrafts={}; }
 
 function buildWList(){
+  hardStop();
   $("wex").hidden=true; $("wlist").hidden=false;
   const el=$("wlist"); el.innerHTML="";
   ["A1","A2","B1"].forEach(lv=>{
@@ -3244,6 +3282,7 @@ $("segP").onclick=()=>setSeg("p");
 $("wback").onclick=()=>{ wT=null; buildWList(); };
 
 function renderSeg(){
+  hardStop();
   $("segA").setAttribute("aria-selected", wSeg==="a"?"true":"false");
   $("segM").setAttribute("aria-selected", wSeg==="m"?"true":"false");
   $("segP").setAttribute("aria-selected", wSeg==="p"?"true":"false");
@@ -3356,8 +3395,8 @@ function checkDraft(){
 }
 
 function speakLong(text){
+  hardStop();
   try{
-    speechSynthesis.cancel();
     text.split(/\n+|(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>1)
       .forEach(part=>speechSynthesis.speak(utter(part,0.9)));
   }catch(e){}
@@ -3367,9 +3406,12 @@ buildWList();
 
 /* ================= speaking ================= */
 let kT=null, kSeg="a", kRec=null, kSaid="", kTimer=null, kLeft=0, kRunning=false, kGot=false;
+let kMode = store.get("hoerbar.kmode")||"with";
+let kEn = (store.get("hoerbar.ken")||"1")==="1";
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
 function buildKList(){
+  hardStop();
   $("kex").hidden=true; $("klist").hidden=false;
   const el=$("klist"); el.innerHTML="";
   ["A1","A2","B1"].forEach(lv=>{
@@ -3402,7 +3444,7 @@ $("kback").onclick=()=>{ stopRec(); stopTimer(); kT=null; buildKList(); };
 function modelText(){ return (kT.text||[]).map(x=>x[0]).join(" "); }
 
 function renderKSeg(){
-  stopRec(); stopTimer();
+  stopRec(); stopTimer(); hardStop();
   $("ksegA").setAttribute("aria-selected", kSeg==="a"?"true":"false");
   $("ksegT").setAttribute("aria-selected", kSeg==="t"?"true":"false");
   $("ksegS").setAttribute("aria-selected", kSeg==="s"?"true":"false");
@@ -3437,7 +3479,23 @@ function renderKSeg(){
     $("kgo3").onclick=()=>{ kSeg="s"; renderKSeg(); };
 
   } else {
+    const hasText = kT.text && kT.text.length;
     let s='<div class="taskbox"><p>'+esc(kT.prompt)+'</p><p class="ten">'+esc(kT.promptEn)+'</p></div>';
+    if(hasText){
+      s+='<div class="modes">'+
+         '<button id="kmw" aria-pressed="'+(kMode==="with"?"true":"false")+'">Mit Text üben</button>'+
+         '<button id="kmo" aria-pressed="'+(kMode==="without"?"true":"false")+'">Ohne Text testen</button></div>';
+    }
+    if(hasText && kMode==="with"){
+      s+='<p class="readnote">Tippen Sie auf ▶ bei einem Absatz, hören Sie zu und sprechen Sie ihn laut nach. Wenn es gut läuft, wechseln Sie auf <b>Ohne Text testen</b>.</p>';
+      s+='<div id="klines" class="'+(kEn?"":"hideen")+'">'+
+         kT.text.map((x,i)=>'<div class="sline"><button class="pb" data-i="'+i+'" aria-label="Absatz hören">▶</button>'+
+           '<span class="st"><p class="d">'+esc(x[0])+'</p><p class="e">'+esc(x[1])+'</p></span></div>').join('')+'</div>';
+      s+='<div class="modes" style="margin-top:14px">'+
+         '<button id="kall">Ganzen Text hören</button>'+
+         '<button id="kslow2">Langsam</button>'+
+         '<button id="ken" aria-pressed="'+(kEn?"true":"false")+'">Englisch</button></div>';
+    }
     s+='<p class="timer" id="ktime">'+fmt(kT.sec)+'</p>';
     s+='<button class="mic" id="kmic" aria-label="Timer starten">●</button>';
     s+='<p class="mictxt" id="kmt">Tippen, laut sprechen — der Timer läuft mit</p>';
@@ -3448,6 +3506,34 @@ function renderKSeg(){
     $("ksay").value=kSaid;
     $("ksay").addEventListener("input",()=>{ kSaid=$("ksay").value; });
     $("kmic").onclick=toggleRec;
+    if(hasText){
+      $("kmw").onclick=()=>{ kMode="with"; store.set("hoerbar.kmode",kMode); renderKSeg(); };
+      $("kmo").onclick=()=>{ kMode="without"; store.set("hoerbar.kmode",kMode); renderKSeg(); };
+    }
+    if(hasText && kMode==="with"){
+      $("kall").onclick=()=>speakParas(0.92);
+      $("kslow2").onclick=()=>speakParas(0.7);
+      $("ken").onclick=()=>{ kEn=!kEn; store.set("hoerbar.ken", kEn?"1":"0");
+        $("klines").className = kEn?"":"hideen"; $("ken").setAttribute("aria-pressed", kEn?"true":"false"); };
+      $("klines").querySelectorAll(".pb").forEach(btn=>{
+        btn.onclick=()=>{
+          const i=+btn.dataset.i;
+          const wasOn = btn.className.indexOf("on")>=0;
+          hardStop();
+          if(wasOn) return;
+          try{
+            $("klines").querySelectorAll(".pb").forEach(x=>x.className="pb");
+            btn.className="pb on";
+            const parts=kT.text[i][0].split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>1);
+            parts.forEach((part,n)=>{
+              const u=utter(part,0.88);
+              if(n===parts.length-1) u.onend=()=>{ btn.className="pb"; };
+              speechSynthesis.speak(u);
+            });
+          }catch(e){ btn.className="pb"; }
+        };
+      });
+    }
     f.innerHTML='<button class="gbtn sec" id="kagain">Zurücksetzen</button>'+
       '<button class="gbtn" id="kcheck">Prüfen</button>';
     $("kcheck").onclick=checkSpeech;
@@ -3458,8 +3544,8 @@ function renderKSeg(){
 function fmt(s){ const m=Math.floor(s/60), r=s%60; return m+":"+(r<10?"0":"")+r; }
 
 function speakParas(rate){
+  hardStop();
   try{
-    speechSynthesis.cancel();
     modelText().split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>1)
       .forEach(part=>speechSynthesis.speak(utter(part,rate)));
   }catch(e){}
@@ -3538,6 +3624,14 @@ function checkSpeech(){
 }
 
 buildKList();
+
+/* ================= global audio stop ================= */
+$("stopall").onclick=()=>{ autoOn=false; var a=$("auto"); if(a) a.setAttribute("aria-pressed","false"); hardStop(); };
+setInterval(()=>{
+  let on=false;
+  try{ on = speechSynthesis.speaking || speechSynthesis.pending; }catch(e){}
+  const b=$("stopall"); if(b) b.className = on ? "stopbar on" : "stopbar";
+},400);
 
 </script>
 </body>
